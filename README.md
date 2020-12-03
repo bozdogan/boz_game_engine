@@ -1,3 +1,3 @@
-# basic_sdl
+# boz_game_engine
 
-a simple project using Simple Direct-media Layer library.
+A game engine/3D renderer/graphics rasterizer sort of thing..
