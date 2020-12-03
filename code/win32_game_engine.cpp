@@ -3,7 +3,7 @@
 #include <ctime>
 #include <vector>
 
-#include <cstdio>
+#define local_persist static
 
 struct Demo :  game_engine
 {
@@ -11,18 +11,12 @@ struct Demo :  game_engine
     {
     }
 
-    double penetration = 0; // ouch!
-
     void DrawPoints(std::vector<v2d> &points)
     {
         SDL_SetRenderDrawColor(_sdl_renderer, 255, 0, 0, 255);  
         for(auto it = points.begin(); it != points.end(); ++it)
         {
-            const int ptwidth = 3;
-            SDL_RenderFillRect(_sdl_renderer, &SDL_Rect{
-                        (int) it->x - ptwidth/2,
-                        (int) it->y - ptwidth/2,
-                        ptwidth, ptwidth});
+            FillRect({it->x, it->y, 1, 1});
         }
     }
 
@@ -35,31 +29,24 @@ struct Demo :  game_engine
         {
             points.push_back(v2d{rand() % ScreenWidth,  rand() % ScreenHeight});
         }
-            printf("%d %d\n", ScreenWidth, ScreenHeight);
 
         DrawPoints(points);
     }
 
-    void Update(double ElapsedTime) override
+    void Update(float ElapsedTime) override
     {
-        penetration += ElapsedTime;
-
-        if(penetration > 2)
+        local_persist float timer;
+        local_persist Uint8 shade;
+        timer += ElapsedTime;
+        if(timer >= .5)
         {
-            penetration -= 2;
-            SDL_SetRenderDrawColor(_sdl_renderer, 0, 0, 0, 255);  
-            SDL_RenderClear(_sdl_renderer);
+            timer -= 1;
 
-            srand(time(0));
+            SDL_SetRenderDrawColor(_sdl_renderer, 255 - shade, 0, 0 + shade, 255);
+            shade += 16;
 
-            std::vector<v2d> points;
-            for(int i = 0; i < 420; ++i)
-            {
-                points.push_back(v2d{rand() % ScreenWidth,  rand() % ScreenHeight});
-            }
-            DrawPoints(points);
+            DrawLine({400, 250}, {rand()%ScreenWidth, rand()%ScreenHeight});
         }
-            printf("%f\n", penetration);
     }
 };
 

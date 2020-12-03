@@ -1,15 +1,25 @@
 #ifndef GAME_ENGINE_H
+
 #ifdef _WIN32
     #include <SDL.h>
 #else
     #include <SDL2/SDL.h>
 #endif
-#include <ctime>
+
 
 struct v2d
 {
     int x;
     int y;
+};
+
+
+struct rect2d
+{
+    int x;
+    int y;
+    int w;
+    int h;
 };
 
 
@@ -59,7 +69,7 @@ struct game_engine
     {
     }
 
-    virtual void Update(double ElapsedTime)
+    virtual void Update(float ElapsedTime)
     {
     }
 
@@ -67,15 +77,15 @@ struct game_engine
     {
         Init();
 
-        clock_t tick_prev;
-        clock_t tick = clock();
+        Uint32 tick_prev = 0;
+        Uint32 tick = 0;
 
         SDL_Event event;
         while(Running)
         {
             tick_prev = tick;
-            tick = clock();
-            double elapsed_time = (double) (tick - tick_prev)/CLOCKS_PER_SEC;
+            tick = SDL_GetTicks();
+            float elapsed_time = (float)SDL_TICKS_PASSED(tick_prev, tick) / 1000.0;
             
             Update(elapsed_time);
             SDL_RenderPresent(_sdl_renderer);
@@ -87,8 +97,30 @@ struct game_engine
             }
         }
     }
-};
 
+    void DrawPoint(v2d Point)
+    {
+        SDL_RenderDrawPoint(_sdl_renderer, Point.x, Point.y);
+    }
+
+    void DrawLine(v2d StartPos, v2d EndPos)
+    {
+        SDL_RenderDrawLine(_sdl_renderer, 
+                StartPos.x,
+                StartPos.y,
+                EndPos.x,
+                EndPos.y);
+    }
+
+    void FillRect(rect2d Rectangle)
+    {
+        SDL_RenderFillRect(_sdl_renderer, &SDL_Rect{
+                    Rectangle.x,
+                    Rectangle.y,
+                    Rectangle.w,
+                    Rectangle.h});
+    }
+};
 
 #define GAME_ENGINE_H
 #endif
