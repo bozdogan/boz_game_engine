@@ -5,7 +5,10 @@
 #else
     #include <SDL2/SDL.h>
 #endif
+#include <chrono>
 
+typedef std::chrono::high_resolution_clock Clock;
+typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 
 struct v2d
 {
@@ -22,6 +25,7 @@ struct rect2d
     int h;
 };
 
+
 struct triangle2d
 {
     v2d p[3];
@@ -37,8 +41,7 @@ struct game_engine
     int ScreenHeight;
     bool Running;
 
-    int
-    Construct(int Width, int Height, char *Title)
+    int Construct(int Width, int Height, char *Title)
     {
         if(SDL_Init(SDL_INIT_VIDEO))
         {
@@ -76,7 +79,7 @@ struct game_engine
     {
     }
 
-    virtual void Update(float ElapsedTime)
+    virtual void Update(double ElapsedTime)
     {
     }
 
@@ -84,17 +87,17 @@ struct game_engine
     {
         Init();
 
-        Uint32 tick_prev = 0;
-        Uint32 tick = 0;
+        TimePoint tick_prev;
+        TimePoint tick = Clock::now();
 
         SDL_Event event;
         while(Running)
         {
             tick_prev = tick;
-            tick = SDL_GetTicks();
-            float elapsed_time = (float)SDL_TICKS_PASSED(tick_prev, tick) / 1000.0;
+            tick = Clock::now();
+            std::chrono::duration<double> elapsed_time = tick - tick_prev;
 
-            Update(elapsed_time);
+            Update(elapsed_time.count());
             SDL_RenderPresent(_sdl_renderer);
 
             SDL_PollEvent(&event);
