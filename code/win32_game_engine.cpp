@@ -1,78 +1,74 @@
-#ifdef _WIN32
-    #include <SDL.h>
-#else
-    #include <SDL2/SDL.h>
-#endif
+#include "game_engine.h"
 #include <cstdlib>
 #include <ctime>
 #include <vector>
 
-struct v2d
-{
-    int x;
-    int y;
-};
+#include <cstdio>
 
-
-void DrawPoints(SDL_Renderer *Renderer, std::vector<v2d> &points)
+struct Demo :  game_engine
 {
-    SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);  
-    for(auto it = points.begin(); it != points.end(); ++it)
+    Demo() : game_engine(1000, 800, "ENGINE")
     {
-        const int ptwidth = 3;
-        SDL_RenderFillRect(Renderer, &SDL_Rect{
-                    (int) it->x - ptwidth/2,
-                    (int) it->y - ptwidth/2,
-                    ptwidth, ptwidth});
     }
-}
+
+    double penetration = 0; // ouch!
+
+    void DrawPoints(std::vector<v2d> &points)
+    {
+        SDL_SetRenderDrawColor(_sdl_renderer, 255, 0, 0, 255);  
+        for(auto it = points.begin(); it != points.end(); ++it)
+        {
+            const int ptwidth = 3;
+            SDL_RenderFillRect(_sdl_renderer, &SDL_Rect{
+                        (int) it->x - ptwidth/2,
+                        (int) it->y - ptwidth/2,
+                        ptwidth, ptwidth});
+        }
+    }
+
+    void Init() override
+    {
+        srand(time(0));
+
+        std::vector<v2d> points;
+        for(int i = 0; i < 420; ++i)
+        {
+            points.push_back(v2d{rand() % ScreenWidth,  rand() % ScreenHeight});
+        }
+            printf("%d %d\n", ScreenWidth, ScreenHeight);
+
+        DrawPoints(points);
+    }
+
+    void Update(double ElapsedTime) override
+    {
+        penetration += ElapsedTime;
+
+        if(penetration > 2)
+        {
+            penetration -= 2;
+            SDL_SetRenderDrawColor(_sdl_renderer, 0, 0, 0, 255);  
+            SDL_RenderClear(_sdl_renderer);
+
+            srand(time(0));
+
+            std::vector<v2d> points;
+            for(int i = 0; i < 420; ++i)
+            {
+                points.push_back(v2d{rand() % ScreenWidth,  rand() % ScreenHeight});
+            }
+            DrawPoints(points);
+        }
+            printf("%f\n", penetration);
+    }
+};
 
 
 int main(int argc, char **argv)
 {
-    if(SDL_Init(SDL_INIT_VIDEO))
-    {
-        return 1;
-    }
-
-    int Width = 1000;
-    int Height = 800;
-    int Running = 1;
-
-    srand(time(0));
-
-    SDL_Window *Window = SDL_CreateWindow(
-            "ENGINE",
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            Width, Height, 0);
-    SDL_Renderer *Renderer = SDL_CreateRenderer(Window, -1, 0);
-
-    std::vector<v2d> points;
-    for(int i = 0; i < 420; ++i)
-    {
-        points.push_back(v2d{rand() % Width - 1,  rand() % Height});
-    }
-
-    DrawPoints(Renderer, points);
-
-    SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(Renderer, &SDL_Rect{-1, -1, 3, 3});
-
-    SDL_RenderPresent(Renderer);
-
-    SDL_Event event;
-    while(Running)
-    {
-        SDL_PollEvent(&event);
-        if (event.type == SDL_QUIT)
-        {
-            Running = 0;
-        }
-    }
-
-    SDL_DestroyRenderer(Renderer);
-    SDL_DestroyWindow(Window);
-    SDL_Quit();
+    Demo *game = new Demo();
+    game->Run();
+    
+    delete game;
     return 0;
 }
