@@ -7,10 +7,6 @@
 
 struct Demo :  game_engine
 {
-    Demo() : game_engine(1000, 800, "ENGINE")
-    {
-    }
-
     void DrawPoints(std::vector<v2d> &points)
     {
         SDL_SetRenderDrawColor(_sdl_renderer, 255, 0, 0, 255);  
@@ -37,15 +33,22 @@ struct Demo :  game_engine
     {
         local_persist float timer;
         local_persist Uint8 shade;
+        local_persist int StartX = 200 + rand()%300;
+        local_persist int StartY = 100 + rand()%200;
+
         timer += ElapsedTime;
-        if(timer >= .5)
+        if(timer >= 1)
         {
             timer -= 1;
 
             SDL_SetRenderDrawColor(_sdl_renderer, 255 - shade, 0, 0 + shade, 255);
             shade += 16;
 
-            DrawLine({400, 250}, {rand()%ScreenWidth, rand()%ScreenHeight});
+            DrawLine(StartX, StartY, rand()%ScreenWidth, rand()%ScreenHeight);
+            DrawTriangle(triangle2d{{
+                        {300 + rand()%100, 300 + rand()%100},
+                        {100 + rand()%100, 500 + rand()%100},
+                        {500 + rand()%100, 500 + rand()%100}}});
         }
     }
 };
@@ -53,9 +56,9 @@ struct Demo :  game_engine
 
 int main(int argc, char **argv)
 {
-    Demo *game = new Demo();
-    game->Run();
+    Demo game;
+    if(!game.Construct(1000, 800, "ENGINE"))
+        game.Run();
     
-    delete game;
     return 0;
 }
