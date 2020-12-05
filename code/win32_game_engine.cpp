@@ -6,8 +6,6 @@
 
 #define local_persist static
 
-#include <cstdio>
-
 
 struct triangle
 {
@@ -19,16 +17,6 @@ struct mesh
 {
     std::vector<triangle> tris;
 };
-
-
-void
-PrintTriangleCoordinates(triangle Tri)
-{
-    printf("(%f,%f) (%f,%f) (%f,%f)\n",
-            Tri.p[0].x, Tri.p[0].y,
-            Tri.p[1].x, Tri.p[1].y,
-            Tri.p[2].x, Tri.p[2].y);
-}
 
 
 struct Demo : game_engine
@@ -90,6 +78,7 @@ struct Demo : game_engine
         matProj.m[2][3] = 1.0f;
         matProj.m[3][3] = 0.0f;
 
+        printf("%d by %d\n", ScreenWidth, ScreenHeight);
     }
 
     void Update(double ElapsedTime) override
@@ -97,41 +86,6 @@ struct Demo : game_engine
         // Clear Screen
         Fill({0, 0, ScreenWidth, ScreenHeight}, color{0, 0, 0, 255});
 
-#if 0 // Triangle filling test
-        FillTriangle(
-                triangle2d{
-                    {{150, 100}, {100, 200}, {200, 200}}},
-                color{255, 255, 255, 255});
-        FillTriangle(
-                triangle2d{
-                    {{300, 100}, {400, 100}, {350, 200}}},
-                color{255, 255, 255, 255});
-        FillTriangle(
-                triangle2d{
-                    {{550, 100}, {500, 200}, {600, 250}}},
-                color{255, 255, 255, 255});
-        FillTriangle(
-                triangle2d{
-                    {{800, 50}, {700, 100}, {750, 200}}},
-                color{255, 255, 255, 255});
-
-        FillTriangle(
-                triangle2d{
-                    {{150, 400}, {100, 500}, {200, 500}}},
-                color{255, 255, 255, 255});
-        FillTriangle(
-                triangle2d{
-                    {{400, 400}, {300, 400}, {350, 500}}},
-                color{255, 255, 255, 255});
-        FillTriangle(
-                triangle2d{
-                    {{500, 500}, {550, 400}, {600, 550}}},
-                color{255, 255, 255, 255});
-        FillTriangle(
-                triangle2d{
-                    {{800, 400}, {700, 350}, {750, 500}}},
-                color{255, 255, 255, 255});
-#else
         // Set up rotation matrices
         mat4x4 matRotZ, matRotX;
         Theta += 1.0f * ElapsedTime;
@@ -192,15 +146,19 @@ struct Demo : game_engine
             normal.y = line1.z * line2.x - line1.x * line2.z;
             normal.z = line1.x * line2.y - line1.y * line2.x;
 
-            float l = sqrtf(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
-            normal.x /= l;
-            normal.y /= l;
-            normal.z /= l;
+            // float l = sqrtf(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
+            // normal.x /= l;
+            // normal.y /= l;
+            // normal.z /= l; // TODO(bora): clean this if the function works
+            normal = Normalized(normal);
 
             if((normal.x * (triTranslated.p[0].x - Camera.x) +
                 normal.y * (triTranslated.p[0].y - Camera.y) + 
                 normal.z * (triTranslated.p[0].z - Camera.z) ) < 0)
             {
+                v3 LightDirection = Normalized({0, 0, -1.0});
+                Uint8 ColorValue = DotProduct(normal, LightDirection) * 255;
+
                 // Project triangles from 3D --> 2D
                 MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
                 MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
@@ -223,19 +181,16 @@ struct Demo : game_engine
                             (int)triProjected.p[0].x, (int)triProjected.p[0].y,
                             (int)triProjected.p[1].x, (int)triProjected.p[1].y,
                             (int)triProjected.p[2].x, (int)triProjected.p[2].y},
-                        color{255, 255, 255, 255});
+                        color{ColorValue, ColorValue, ColorValue, 255});
 
-                DrawTriangle(
-                        triangle2d{
-                            (int)triProjected.p[0].x, (int)triProjected.p[0].y,
-                            (int)triProjected.p[1].x, (int)triProjected.p[1].y,
-                            (int)triProjected.p[2].x, (int)triProjected.p[2].y},
-                        color{0, 0, 0, 255});
-
-                // PrintTriangleCoordinates(triProjected);
+                // DrawTriangle(
+                //         triangle2d{
+                //             (int)triProjected.p[0].x, (int)triProjected.p[0].y,
+                //             (int)triProjected.p[1].x, (int)triProjected.p[1].y,
+                //             (int)triProjected.p[2].x, (int)triProjected.p[2].y},
+                //         color{0, 0, 0, 255});
             }
         }
-#endif // Cube mesh
     }
 };
 
