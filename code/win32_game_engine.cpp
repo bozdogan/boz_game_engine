@@ -9,7 +9,7 @@
 
 struct triangle
 {
-    v3 p[3];
+    v3f p[3];
 };
 
 
@@ -24,7 +24,7 @@ struct Demo : game_engine
     mesh CubeMesh;
     mat4x4 matProj;
 
-    v3 Camera = {0, 0, 0};
+    v3f Camera = {0, 0, 0};
 
     float Theta;
 
@@ -131,8 +131,8 @@ struct Demo : game_engine
             triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
 
             // Calculate normal and stuff
-            v3 normal;
-            v3 line1, line2;
+            v3f normal;
+            v3f line1, line2;
 
             line1.x = triTranslated.p[1].x - triTranslated.p[0].x;
             line1.y = triTranslated.p[1].y - triTranslated.p[0].y;
@@ -156,7 +156,7 @@ struct Demo : game_engine
                 normal.y * (triTranslated.p[0].y - Camera.y) + 
                 normal.z * (triTranslated.p[0].z - Camera.z) ) < 0)
             {
-                v3 LightDirection = Normalized({0, 0, -1.0});
+                v3f LightDirection = Normalized({0, 0, -1.0});
                 Uint8 ColorValue = DotProduct(normal, LightDirection) * 255;
 
                 // Project triangles from 3D --> 2D
