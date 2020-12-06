@@ -132,21 +132,7 @@ struct Demo : game_engine
             triangle triRotatedZ;
             triangle triRotatedZX;
 
-            // // Rotate in Z-Axis
-            // triRotatedZ.p[0] = Matrix_MultiplyVector(matRotZ, tri.p[0]);
-            // triRotatedZ.p[1] = Matrix_MultiplyVector(matRotZ, tri.p[1]);
-            // triRotatedZ.p[2] = Matrix_MultiplyVector(matRotZ, tri.p[2]);
-
-            // // Rotate in X-Axis
-            // triRotatedZX.p[0] = Matrix_MultiplyVector(matRotX, triRotatedZ.p[0]);
-            // triRotatedZX.p[1] = Matrix_MultiplyVector(matRotX, triRotatedZ.p[1]);
-            // triRotatedZX.p[2] = Matrix_MultiplyVector(matRotX, triRotatedZ.p[2]);
-
-            // // Offset into the screen
-            // triTranslated = triRotatedZX;
-            // triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-            // triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-            // triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+            // Rotate and offset into the screen
             triTranslated.p[0] = Matrix_MultiplyVector(WorldTransform, tri.p[0]);
             triTranslated.p[1] = Matrix_MultiplyVector(WorldTransform, tri.p[1]);
             triTranslated.p[2] = Matrix_MultiplyVector(WorldTransform, tri.p[2]);
@@ -155,39 +141,20 @@ struct Demo : game_engine
             v3f normal;
             v3f line1, line2;
 
-            // line1.x = triTranslated.p[1].x - triTranslated.p[0].x;
-            // line1.y = triTranslated.p[1].y - triTranslated.p[0].y;
-            // line1.z = triTranslated.p[1].z - triTranslated.p[0].z;
             line1 = Vector_Sub(triTranslated.p[1], triTranslated.p[0]);
 
-            // line2.x = triTranslated.p[2].x - triTranslated.p[0].x;
-            // line2.y = triTranslated.p[2].y - triTranslated.p[0].y;
-            // line2.z = triTranslated.p[2].z - triTranslated.p[0].z;
             line2 = Vector_Sub(triTranslated.p[2], triTranslated.p[0]);
 
-            // normal.x = line1.y * line2.z - line1.z * line2.y;
-            // normal.y = line1.z * line2.x - line1.x * line2.z;
-            // normal.z = line1.x * line2.y - line1.y * line2.x;
             normal = Vector_CrossProduct(line1, line2);
 
-            // float l = sqrtf(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
-            // normal.x /= l;
-            // normal.y /= l;
-            // normal.z /= l; // TODO(bora): clean this if the function works
             normal = Vector_Normalize(normal);
 
-            // if((normal.x * (triTranslated.p[0].x - Camera.x) +
-            //     normal.y * (triTranslated.p[0].y - Camera.y) + 
-            //     normal.z * (triTranslated.p[0].z - Camera.z) ) < 0)
             if(Vector_DotProduct(normal, Vector_Sub(triTranslated.p[0], Camera)) < 0)
             {
                 v3f LightDirection = Vector_Normalize({0, 0, -1.0});
                 Uint8 ColorValue = Vector_DotProduct(normal, LightDirection) * 255;
 
                 // Project triangles from 3D --> 2D
-                // MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-                // MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-                // MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
                 triProjected.p[0] = Matrix_MultiplyVector(matProj, triTranslated.p[0]);
                 triProjected.p[1] = Matrix_MultiplyVector(matProj, triTranslated.p[1]);
                 triProjected.p[2] = Matrix_MultiplyVector(matProj, triTranslated.p[2]);
@@ -196,7 +163,7 @@ struct Demo : game_engine
                 triProjected.p[0] = Vector_Div(triProjected.p[0], triProjected.p[0].w);
                 triProjected.p[1] = Vector_Div(triProjected.p[1], triProjected.p[1].w);
                 triProjected.p[2] = Vector_Div(triProjected.p[2], triProjected.p[2].w);
-                
+
                 triProjected.p[0].x += 1.0f;
                 triProjected.p[0].y += 1.0f;
                 triProjected.p[1].x += 1.0f;
