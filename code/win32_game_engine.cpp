@@ -41,28 +41,28 @@ struct Demo : game_engine
 
         CubeMesh.tris = {
             // SOUTH
-            {0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f},
-            {0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f, 0.0f, 1.0f,    1.0f, 1.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f, 1.0f},
 
             // EAST                                                      
-            {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f},
-            {1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f},
+            {1.0f, 0.0f, 0.0f, 1.0f,    1.0f, 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f, 1.0f},
+            {1.0f, 0.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f, 1.0f},
 
             // NORTH                                                     
-            {1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f},
-            {1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f},
+            {1.0f, 0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f, 1.0f},
+            {1.0f, 0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f, 1.0f},
 
             // WEST                                                      
-            {0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f},
-            {0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
+            {0.0f, 0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f, 1.0f},
+            {0.0f, 0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f, 1.0f},
 
             // TOP                                                       
-            {0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f},
-            {0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f},
+            {0.0f, 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f, 1.0f},
+            {0.0f, 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f, 1.0f},
 
             // BOTTOM                                                    
-            {1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-            {1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f},
+            {1.0f, 0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 0.0f, 1.0f},
+            {1.0f, 0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f, 1.0f},
         };
 
         float zNear = 0.1f;
@@ -105,6 +105,24 @@ struct Demo : game_engine
         matRotX.m[2][1] = -sinf(Theta * 0.5f);
         matRotX.m[2][2] = cosf(Theta * 0.5f);
         matRotX.m[3][3] = 1;
+
+        mat4x4 WorldTransform;
+        WorldTransform.m[0][0] = 1.0f;
+        WorldTransform.m[1][1] = 1.0f;
+        WorldTransform.m[2][2] = 1.0f;
+        WorldTransform.m[3][3] = 1.0f;
+
+        mat4x4 Translation;
+        Translation.m[0][0] = 1.0f;
+        Translation.m[1][1] = 1.0f;
+        Translation.m[2][2] = 1.0f;
+        Translation.m[3][3] = 1.0f;
+        Translation.m[3][0] = 0;
+        Translation.m[3][1] = 0;
+        Translation.m[3][2] = 3;
+
+        WorldTransform = Matrix_MultiplyMatrix(matRotZ, matRotX);
+        WorldTransform = Matrix_MultiplyMatrix(WorldTransform, Translation);
         
         // Draw Triangles
         for (auto tri : CubeMesh.tris)
@@ -114,21 +132,24 @@ struct Demo : game_engine
             triangle triRotatedZ;
             triangle triRotatedZX;
 
-            // Rotate in Z-Axis
-            MultiplyMatrixVector(tri.p[0], triRotatedZ.p[0], matRotZ);
-            MultiplyMatrixVector(tri.p[1], triRotatedZ.p[1], matRotZ);
-            MultiplyMatrixVector(tri.p[2], triRotatedZ.p[2], matRotZ);
+            // // Rotate in Z-Axis
+            // triRotatedZ.p[0] = Matrix_MultiplyVector(matRotZ, tri.p[0]);
+            // triRotatedZ.p[1] = Matrix_MultiplyVector(matRotZ, tri.p[1]);
+            // triRotatedZ.p[2] = Matrix_MultiplyVector(matRotZ, tri.p[2]);
 
-            // Rotate in X-Axis
-            MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-            MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-            MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
+            // // Rotate in X-Axis
+            // triRotatedZX.p[0] = Matrix_MultiplyVector(matRotX, triRotatedZ.p[0]);
+            // triRotatedZX.p[1] = Matrix_MultiplyVector(matRotX, triRotatedZ.p[1]);
+            // triRotatedZX.p[2] = Matrix_MultiplyVector(matRotX, triRotatedZ.p[2]);
 
-            // Offset into the screen
-            triTranslated = triRotatedZX;
-            triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
-            triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
-            triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+            // // Offset into the screen
+            // triTranslated = triRotatedZX;
+            // triTranslated.p[0].z = triRotatedZX.p[0].z + 3.0f;
+            // triTranslated.p[1].z = triRotatedZX.p[1].z + 3.0f;
+            // triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
+            triTranslated.p[0] = Matrix_MultiplyVector(WorldTransform, tri.p[0]);
+            triTranslated.p[1] = Matrix_MultiplyVector(WorldTransform, tri.p[1]);
+            triTranslated.p[2] = Matrix_MultiplyVector(WorldTransform, tri.p[2]);
 
             // Calculate normal and stuff
             v3f normal;
@@ -155,17 +176,21 @@ struct Demo : game_engine
             // normal.z /= l; // TODO(bora): clean this if the function works
             normal = Vector_Normalize(normal);
 
-            if((normal.x * (triTranslated.p[0].x - Camera.x) +
-                normal.y * (triTranslated.p[0].y - Camera.y) + 
-                normal.z * (triTranslated.p[0].z - Camera.z) ) < 0)
+            // if((normal.x * (triTranslated.p[0].x - Camera.x) +
+            //     normal.y * (triTranslated.p[0].y - Camera.y) + 
+            //     normal.z * (triTranslated.p[0].z - Camera.z) ) < 0)
+            if(Vector_DotProduct(normal, Vector_Sub(triTranslated.p[0], Camera)) < 0)
             {
                 v3f LightDirection = Vector_Normalize({0, 0, -1.0});
                 Uint8 ColorValue = Vector_DotProduct(normal, LightDirection) * 255;
 
                 // Project triangles from 3D --> 2D
-                MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-                MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-                MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+                // MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
+                // MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
+                // MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+                triProjected.p[0] = Matrix_MultiplyVector(matProj, triTranslated.p[0]);
+                triProjected.p[1] = Matrix_MultiplyVector(matProj, triTranslated.p[1]);
+                triProjected.p[2] = Matrix_MultiplyVector(matProj, triTranslated.p[2]);
 
                 // Scale into view
                 triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
