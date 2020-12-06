@@ -114,34 +114,35 @@ struct mat4x4
 };
 
 
-v3f
-Matrix_MultiplyVector(mat4x4 &m, v3f i)
-{
-    v3f o;
-    o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
-    o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
-    o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
-    float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
-
-    if (w != 0.0f)
-    {
-        o.x /= w; o.y /= w; o.z /= w;
-    }
-
-    return o;
-}
-
 // v3f
-// Matrix_MultiplyVector(mat4x4 m, v3f v)
+// Matrix_MultiplyVector(mat4x4 &m, v3f i)
 // {
-//     v3f Vector;
-//     Vector.x = v.x*m.m[0][0] + v.y*m.m[1][0] + v.z*m.m[2][0] + v.w*m.m[3][0];
-//     Vector.y = v.x*m.m[0][1] + v.y*m.m[1][1] + v.z*m.m[2][1] + v.w*m.m[3][1];
-//     Vector.z = v.x*m.m[0][2] + v.y*m.m[1][2] + v.z*m.m[2][2] + v.w*m.m[3][2];
-//     Vector.w = v.x*m.m[0][3] + v.y*m.m[1][3] + v.z*m.m[2][3] + v.w*m.m[3][3];
+//     v3f o;
+//     o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
+//     o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
+//     o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
+//     float w = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
 
-//     return Vector;
+//     if (w != 0.0f)
+//     {
+//         o.x /= w; o.y /= w; o.z /= w;
+//     }
+
+//     return o;
 // }
+
+
+v3f
+Matrix_MultiplyVector(mat4x4 m, v3f v)
+{
+    v3f Vector;
+    Vector.x = v.x*m.m[0][0] + v.y*m.m[1][0] + v.z*m.m[2][0] + v.w*m.m[3][0];
+    Vector.y = v.x*m.m[0][1] + v.y*m.m[1][1] + v.z*m.m[2][1] + v.w*m.m[3][1];
+    Vector.z = v.x*m.m[0][2] + v.y*m.m[1][2] + v.z*m.m[2][2] + v.w*m.m[3][2];
+    Vector.w = v.x*m.m[0][3] + v.y*m.m[1][3] + v.z*m.m[2][3] + v.w*m.m[3][3];
+    
+    return Vector;
+}
 
 
 mat4x4 
