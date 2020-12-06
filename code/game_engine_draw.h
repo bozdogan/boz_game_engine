@@ -16,7 +16,7 @@ _FillFlatBottomTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color
     }
 
     if(v2.y != v3.y)
-        // TODO(bora): Something'g got terribly wrong! I should probably log this.
+        // TODO(bora): Something's got terribly wrong! I should probably log this.
         // Here is a helpful print statement for now.
         printf("PANIC\n");
 
@@ -47,7 +47,7 @@ _FillFlatTopTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color)
     }
 
     if(v1.y != v2.y)
-        // TODO(bora): Something'g got terribly wrong! I should probably log this.
+        // TODO(bora): Something's got terribly wrong! I should probably log this.
         // Here is a helpful print statement for now.
         printf("PANIK\n");
 
