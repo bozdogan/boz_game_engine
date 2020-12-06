@@ -134,30 +134,33 @@ struct Demo : game_engine
             v3f normal;
             v3f line1, line2;
 
-            line1.x = triTranslated.p[1].x - triTranslated.p[0].x;
-            line1.y = triTranslated.p[1].y - triTranslated.p[0].y;
-            line1.z = triTranslated.p[1].z - triTranslated.p[0].z;
-            
-            line2.x = triTranslated.p[2].x - triTranslated.p[0].x;
-            line2.y = triTranslated.p[2].y - triTranslated.p[0].y;
-            line2.z = triTranslated.p[2].z - triTranslated.p[0].z;
+            // line1.x = triTranslated.p[1].x - triTranslated.p[0].x;
+            // line1.y = triTranslated.p[1].y - triTranslated.p[0].y;
+            // line1.z = triTranslated.p[1].z - triTranslated.p[0].z;
+            line1 = Vector_Sub(triTranslated.p[1], triTranslated.p[0]);
 
-            normal.x = line1.y * line2.z - line1.z * line2.y;
-            normal.y = line1.z * line2.x - line1.x * line2.z;
-            normal.z = line1.x * line2.y - line1.y * line2.x;
+            // line2.x = triTranslated.p[2].x - triTranslated.p[0].x;
+            // line2.y = triTranslated.p[2].y - triTranslated.p[0].y;
+            // line2.z = triTranslated.p[2].z - triTranslated.p[0].z;
+            line2 = Vector_Sub(triTranslated.p[2], triTranslated.p[0]);
+
+            // normal.x = line1.y * line2.z - line1.z * line2.y;
+            // normal.y = line1.z * line2.x - line1.x * line2.z;
+            // normal.z = line1.x * line2.y - line1.y * line2.x;
+            normal = Vector_CrossProduct(line1, line2);
 
             // float l = sqrtf(normal.x*normal.x + normal.y*normal.y + normal.z*normal.z);
             // normal.x /= l;
             // normal.y /= l;
             // normal.z /= l; // TODO(bora): clean this if the function works
-            normal = Normalized(normal);
+            normal = Vector_Normalize(normal);
 
             if((normal.x * (triTranslated.p[0].x - Camera.x) +
                 normal.y * (triTranslated.p[0].y - Camera.y) + 
                 normal.z * (triTranslated.p[0].z - Camera.z) ) < 0)
             {
-                v3f LightDirection = Normalized({0, 0, -1.0});
-                Uint8 ColorValue = DotProduct(normal, LightDirection) * 255;
+                v3f LightDirection = Vector_Normalize({0, 0, -1.0});
+                Uint8 ColorValue = Vector_DotProduct(normal, LightDirection) * 255;
 
                 // Project triangles from 3D --> 2D
                 MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);

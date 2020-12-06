@@ -32,6 +32,10 @@ struct triangle2d
 };
 
 
+//
+// 3D VECTOR
+//
+
 struct v3f
 {
     float x;
@@ -40,11 +44,64 @@ struct v3f
 };
 
 
-v3f
-Normalized(v3f v)
+float
+Vector_Length(v3f v)
 {
-    float len = sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
-    return v3f{v.x/len, v.y/len, v.z/len};
+    return sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+
+float
+Vector_DotProduct(v3f v1, v3f v2)
+{
+    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
+
+v3f
+Vector_Normalize(v3f v)
+{
+    float len = Vector_Length(v);
+    return {v.x/len, v.y/len, v.z/len};
+}
+
+
+v3f
+Vector_Add(v3f v1, v3f v2)
+{
+    return {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
+}
+
+
+v3f
+Vector_Sub(v3f v1, v3f v2)
+{
+    return {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
+}
+
+
+v3f
+Vector_Mul(v3f v1, float k)
+{
+    return {v1.x*k, v1.y*k, v1.z*k};
+}
+
+
+v3f
+Vector_Div(v3f v1, float k)
+{
+    return {v1.x/k, v1.y/k, v1.z/k};
+}
+
+
+v3f
+Vector_CrossProduct(v3f v1, v3f v2)
+{
+    v3f v;
+    v.x = v1.y*v2.z - v1.z*v2.y;
+    v.y = v1.z*v2.x - v1.x*v2.z;
+    v.z = v1.x*v2.y - v1.y*v2.x;
+    return v;
 }
 
 
@@ -66,12 +123,6 @@ MultiplyMatrixVector(v3f &i, v3f &o, mat4x4 &m)
     {
         o.x /= w; o.y /= w; o.z /= w;
     }
-}
-
-float
-DotProduct(v3f vec1, v3f vec2)
-{
-    return vec1.x*vec2.x + vec1.y*vec2.y + vec1.z*vec2.z;
 }
 
 #define GAME_ENGINE_MATH_H
