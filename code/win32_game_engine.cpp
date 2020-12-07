@@ -22,7 +22,7 @@ struct mesh
 struct Demo : game_engine
 {
     mesh CubeMesh;
-    mat4x4 matProj;
+    mat4x4 Project;
 
     v3f Camera = {0, 0, 0};
 
@@ -71,12 +71,12 @@ struct Demo : game_engine
         float AspectRatio = (float)ScreenHeight / (float)ScreenWidth;
         float FovRad = 1.0f / tanf(Fov * 0.5f / 180.0f * 3.14159f);
 
-        matProj.m[0][0] = AspectRatio * FovRad;
-        matProj.m[1][1] = FovRad;
-        matProj.m[2][2] = zFar / (zFar - zNear);
-        matProj.m[3][2] = (-zFar * zNear) / (zFar - zNear);
-        matProj.m[2][3] = 1.0f;
-        matProj.m[3][3] = 0.0f;
+        Project.m[0][0] = AspectRatio * FovRad;
+        Project.m[1][1] = FovRad;
+        Project.m[2][2] = zFar / (zFar - zNear);
+        Project.m[3][2] = (-zFar * zNear) / (zFar - zNear);
+        Project.m[2][3] = 1.0f;
+        Project.m[3][3] = 0.0f;
 
         printf("%d by %d\n", ScreenWidth, ScreenHeight);
     }
@@ -87,24 +87,25 @@ struct Demo : game_engine
         Fill({0, 0, ScreenWidth, ScreenHeight}, color{0, 0, 0, 255});
 
         // Set up rotation matrices
-        mat4x4 matRotZ, matRotX;
+        mat4x4 RotZ;
+        mat4x4 RotX;
         Theta += 1.0f * ElapsedTime;
 
         // Rotation Z
-        matRotZ.m[0][0] = cosf(Theta);
-        matRotZ.m[0][1] = sinf(Theta);
-        matRotZ.m[1][0] = -sinf(Theta);
-        matRotZ.m[1][1] = cosf(Theta);
-        matRotZ.m[2][2] = 1;
-        matRotZ.m[3][3] = 1;
+        RotZ.m[0][0] = cosf(Theta);
+        RotZ.m[0][1] = sinf(Theta);
+        RotZ.m[1][0] = -sinf(Theta);
+        RotZ.m[1][1] = cosf(Theta);
+        RotZ.m[2][2] = 1;
+        RotZ.m[3][3] = 1;
 
         // Rotation X
-        matRotX.m[0][0] = 1;
-        matRotX.m[1][1] = cosf(Theta * 0.5f);
-        matRotX.m[1][2] = sinf(Theta * 0.5f);
-        matRotX.m[2][1] = -sinf(Theta * 0.5f);
-        matRotX.m[2][2] = cosf(Theta * 0.5f);
-        matRotX.m[3][3] = 1;
+        RotX.m[0][0] = 1;
+        RotX.m[1][1] = cosf(Theta * 0.5f);
+        RotX.m[1][2] = sinf(Theta * 0.5f);
+        RotX.m[2][1] = -sinf(Theta * 0.5f);
+        RotX.m[2][2] = cosf(Theta * 0.5f);
+        RotX.m[3][3] = 1;
 
         mat4x4 WorldTransform;
         WorldTransform.m[0][0] = 1.0f;
@@ -121,75 +122,73 @@ struct Demo : game_engine
         Translation.m[3][1] = 0;
         Translation.m[3][2] = 3;
 
-        WorldTransform = Matrix_MultiplyMatrix(matRotZ, matRotX);
+        WorldTransform = Matrix_MultiplyMatrix(RotZ, RotX);
         WorldTransform = Matrix_MultiplyMatrix(WorldTransform, Translation);
         
         // Draw Triangles
-        for (auto tri : CubeMesh.tris)
+        for (auto Tri : CubeMesh.tris)
         {
-            triangle triProjected;
-            triangle triTranslated;
-            triangle triRotatedZ;
-            triangle triRotatedZX;
+            triangle ProjectedTri;
+            triangle TranslatedTri;
 
             // Rotate and offset into the screen
-            triTranslated.p[0] = Matrix_MultiplyVector(WorldTransform, tri.p[0]);
-            triTranslated.p[1] = Matrix_MultiplyVector(WorldTransform, tri.p[1]);
-            triTranslated.p[2] = Matrix_MultiplyVector(WorldTransform, tri.p[2]);
+            TranslatedTri.p[0] = Matrix_MultiplyVector(WorldTransform, Tri.p[0]);
+            TranslatedTri.p[1] = Matrix_MultiplyVector(WorldTransform, Tri.p[1]);
+            TranslatedTri.p[2] = Matrix_MultiplyVector(WorldTransform, Tri.p[2]);
 
             // Calculate normal and stuff
-            v3f normal;
-            v3f line1, line2;
+            v3f Normal;
+            v3f Line1, Line2;
 
-            line1 = Vector_Sub(triTranslated.p[1], triTranslated.p[0]);
+            Line1 = Vector_Sub(TranslatedTri.p[1], TranslatedTri.p[0]);
 
-            line2 = Vector_Sub(triTranslated.p[2], triTranslated.p[0]);
+            Line2 = Vector_Sub(TranslatedTri.p[2], TranslatedTri.p[0]);
 
-            normal = Vector_CrossProduct(line1, line2);
+            Normal = Vector_CrossProduct(Line1, Line2);
 
-            normal = Vector_Normalize(normal);
+            Normal = Vector_Normalize(Normal);
 
-            if(Vector_DotProduct(normal, Vector_Sub(triTranslated.p[0], Camera)) < 0)
+            if(Vector_DotProduct(Normal, Vector_Sub(TranslatedTri.p[0], Camera)) < 0)
             {
                 v3f LightDirection = Vector_Normalize({0, 0, -1.0});
-                Uint8 ColorValue = Vector_DotProduct(normal, LightDirection) * 255;
+                Uint8 ColorValue = Vector_DotProduct(Normal, LightDirection) * 255;
 
                 // Project triangles from 3D --> 2D
-                triProjected.p[0] = Matrix_MultiplyVector(matProj, triTranslated.p[0]);
-                triProjected.p[1] = Matrix_MultiplyVector(matProj, triTranslated.p[1]);
-                triProjected.p[2] = Matrix_MultiplyVector(matProj, triTranslated.p[2]);
+                ProjectedTri.p[0] = Matrix_MultiplyVector(Project, TranslatedTri.p[0]);
+                ProjectedTri.p[1] = Matrix_MultiplyVector(Project, TranslatedTri.p[1]);
+                ProjectedTri.p[2] = Matrix_MultiplyVector(Project, TranslatedTri.p[2]);
 
                 // Scale into view
-                triProjected.p[0] = Vector_Div(triProjected.p[0], triProjected.p[0].w);
-                triProjected.p[1] = Vector_Div(triProjected.p[1], triProjected.p[1].w);
-                triProjected.p[2] = Vector_Div(triProjected.p[2], triProjected.p[2].w);
+                ProjectedTri.p[0] = Vector_Div(ProjectedTri.p[0], ProjectedTri.p[0].w);
+                ProjectedTri.p[1] = Vector_Div(ProjectedTri.p[1], ProjectedTri.p[1].w);
+                ProjectedTri.p[2] = Vector_Div(ProjectedTri.p[2], ProjectedTri.p[2].w);
 
-                triProjected.p[0].x += 1.0f;
-                triProjected.p[0].y += 1.0f;
-                triProjected.p[1].x += 1.0f;
-                triProjected.p[1].y += 1.0f;
-                triProjected.p[2].x += 1.0f;
-                triProjected.p[2].y += 1.0f;
-                triProjected.p[0].x *= 0.5f * (float)ScreenWidth;
-                triProjected.p[0].y *= 0.5f * (float)ScreenHeight;
-                triProjected.p[1].x *= 0.5f * (float)ScreenWidth;
-                triProjected.p[1].y *= 0.5f * (float)ScreenHeight;
-                triProjected.p[2].x *= 0.5f * (float)ScreenWidth;
-                triProjected.p[2].y *= 0.5f * (float)ScreenHeight;
+                ProjectedTri.p[0].x += 1.0f;
+                ProjectedTri.p[0].y += 1.0f;
+                ProjectedTri.p[1].x += 1.0f;
+                ProjectedTri.p[1].y += 1.0f;
+                ProjectedTri.p[2].x += 1.0f;
+                ProjectedTri.p[2].y += 1.0f;
+                ProjectedTri.p[0].x *= 0.5f * (float)ScreenWidth;
+                ProjectedTri.p[0].y *= 0.5f * (float)ScreenHeight;
+                ProjectedTri.p[1].x *= 0.5f * (float)ScreenWidth;
+                ProjectedTri.p[1].y *= 0.5f * (float)ScreenHeight;
+                ProjectedTri.p[2].x *= 0.5f * (float)ScreenWidth;
+                ProjectedTri.p[2].y *= 0.5f * (float)ScreenHeight;
             
                 // Rasterize triangle
                 FillTriangle(
                         triangle2d{
-                            (int)triProjected.p[0].x, (int)triProjected.p[0].y,
-                            (int)triProjected.p[1].x, (int)triProjected.p[1].y,
-                            (int)triProjected.p[2].x, (int)triProjected.p[2].y},
+                            (int)ProjectedTri.p[0].x, (int)ProjectedTri.p[0].y,
+                            (int)ProjectedTri.p[1].x, (int)ProjectedTri.p[1].y,
+                            (int)ProjectedTri.p[2].x, (int)ProjectedTri.p[2].y},
                         color{ColorValue, ColorValue, ColorValue, 255});
 
                 // DrawTriangle(
                 //         triangle2d{
-                //             (int)triProjected.p[0].x, (int)triProjected.p[0].y,
-                //             (int)triProjected.p[1].x, (int)triProjected.p[1].y,
-                //             (int)triProjected.p[2].x, (int)triProjected.p[2].y},
+                //             (int)ProjectedTri.p[0].x, (int)ProjectedTri.p[0].y,
+                //             (int)ProjectedTri.p[1].x, (int)ProjectedTri.p[1].y,
+                //             (int)ProjectedTri.p[2].x, (int)ProjectedTri.p[2].y},
                 //         color{0, 0, 0, 255});
             }
         }
