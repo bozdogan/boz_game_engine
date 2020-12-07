@@ -9,7 +9,6 @@
 
 #include "game_engine_math.h"
 
-
 struct color
 {
     Uint8 r;
@@ -37,9 +36,9 @@ Swap(v2d *p1, v2d *p2)
     *p1 = temp;
 }
 
-
 #include "game_engine_base.h"
 #include "game_engine_draw.h"
+#include "game_engine_3d_render.h"
 
 #define GAME_ENGINE_H
 #endif

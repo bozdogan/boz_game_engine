@@ -1,5 +1,7 @@
 #ifndef GAME_ENGINE_MATH_H
 
+#define PI_F 3.14159f
+
 float
 Abs(float N)
 {

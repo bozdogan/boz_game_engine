@@ -3,7 +3,6 @@
 #include "game_engine_base.h"
 #include "game_engine_math.h"
 
-
 void
 _FillFlatBottomTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color)
 {
@@ -91,7 +90,6 @@ game_engine::FillTriangle(triangle2d Tri, color Color)
         _FillFlatBottomTriangle(this, Tri.p[0], Tri.p[1],       v4, Color);
         _FillFlatTopTriangle(   this, Tri.p[1],       v4, Tri.p[2], Color);
     }
-
 }
 
 #define GAME_ENGINE_DRAW_H
