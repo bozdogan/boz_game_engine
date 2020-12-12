@@ -3,6 +3,9 @@
 #include <cmath>
 #include <vector>
 
+#include <string>
+#include <sstream>
+
 #define local_persist static
 
 
@@ -35,6 +38,7 @@ struct Demo : game_engine
 
     v3f Camera;
     float Angle;
+    float FpsUpdateCounter;
 
     void Init() override
     {
@@ -79,8 +83,26 @@ struct Demo : game_engine
     void Update(double ElapsedTime) override
     {
         Fill({0, 0, ScreenWidth, ScreenHeight}, color{0, 0, 0, 255});
-        if(!AnyKeyDown)
-            Angle += 1.0f * ElapsedTime;
+        float AngleDelta = 1.0f * ElapsedTime;
+
+        if(AnyKeyDown)
+        {
+            local_persist char PrevKey[10];
+            local_persist char LastKey[10];
+            strcpy(LastKey, SDL_GetKeyName(LastPressed));
+            if(strcmp(PrevKey, LastKey))
+            {
+                strcpy(PrevKey, LastKey);
+                printf("%s\n", LastKey);
+            }
+
+            if(LastPressed == KEY_SPACE)
+                AngleDelta = 0;
+            else if(LastPressed == KEY_a)
+                AngleDelta = -AngleDelta;
+        }
+
+        Angle += AngleDelta;
 
         mat4x4 RotZ = MakeMatrix_RotZ(Angle);
         mat4x4 RotX = MakeMatrix_RotX(Angle*0.5f);
@@ -146,6 +168,32 @@ struct Demo : game_engine
 
                 DrawTriangle(ExtractTriXY(ProjectedTri), color{0, 0, 0, 255});
             }
+        }
+
+        FpsUpdateCounter -= ElapsedTime;
+        if(FpsUpdateCounter <= 0)
+        {
+            float InstantFps = (1.0f/ElapsedTime);
+            local_persist float RecentFpses[5] = {
+                InstantFps, InstantFps, InstantFps, InstantFps, InstantFps};
+            RecentFpses[5] = InstantFps;
+
+            float SumFpses = 0;
+            for(int i = 0; i < 5; ++i)
+            {
+                SumFpses += RecentFpses[i];
+            }
+
+            for(int i = 4; i >= 0; --i)
+            {
+                RecentFpses[i] = RecentFpses[i+1];
+            }
+
+            std::stringstream ss;
+            ss << "FPS: " << (int)(SumFpses/5.0f);
+
+            SDL_SetWindowTitle(_sdl_window, ss.str().c_str());
+            FpsUpdateCounter = .5;
         }
     }
 };
