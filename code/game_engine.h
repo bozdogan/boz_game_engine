@@ -6,8 +6,15 @@
     #include <SDL2/SDL.h>
 #endif
 #include <chrono>
-
 #include "game_engine_math.h"
+
+#define local_persist static
+
+// enum keys
+// {
+//     KEY_SPACE = SDLK_SPACE;
+// }
+
 
 struct color
 {
@@ -29,9 +36,9 @@ ColorMatches(color Color1, color Color2)
 
 
 void
-Swap(v2d *p1, v2d *p2)
+Swap(v2i *p1, v2i *p2)
 {
-    v2d temp = *p2;
+    v2i temp = *p2;
     *p2 = *p1;
     *p1 = temp;
 }

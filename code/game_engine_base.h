@@ -14,6 +14,7 @@ struct game_engine
     int ScreenWidth;
     int ScreenHeight;
     bool Running;
+    bool SpaceBarPressed;
 
     int Construct(int Width, int Height, char *Title)
     {
@@ -74,10 +75,20 @@ struct game_engine
             Update(elapsed_time.count());
             SDL_RenderPresent(_sdl_renderer);
 
-            SDL_PollEvent(&event);
-            if (event.type == SDL_QUIT)
+            while(SDL_PollEvent(&event))
             {
-                Running = 0;
+                if(event.type == SDL_KEYDOWN)
+                {
+                    SpaceBarPressed = true;
+                }
+                else if(event.type == SDL_KEYUP)
+                {
+                    SpaceBarPressed = false;
+                }
+                else if (event.type == SDL_QUIT)
+                {
+                    Running = 0;
+                }
             }
         }
     }
@@ -96,17 +107,22 @@ struct game_engine
         }
     }
 
-    // NOTE(bora): DrawPoint(v2d), DrawLine(int, int, int, int) and Fill(rect2d)
+    // NOTE(bora): DrawPoint(int, int), DrawLine(int, int, int, int) and Fill(rect2d)
     // are what I call the "fundamental drawing routines". This functions handle
     // render color. All other drawing routines should use these rather than directly
     // calling SDL's functions unless there's an obvious advantage of doing so.
-    void DrawPoint(v2d Point, color Color)
+    void DrawPoint(v2i Point, color Color)
     {
-        _SetRenderColor(Color);
-        SDL_RenderDrawPoint(_sdl_renderer, Point.x, Point.y);
+        DrawPoint(Point.x, Point.y, Color);
     }
 
-    void DrawLine(v2d StartPos, v2d EndPos, color Color)
+    void DrawPoint(int X, int Y, color Color)
+    {
+        _SetRenderColor(Color);
+        SDL_RenderDrawPoint(_sdl_renderer, X, Y);
+    }
+
+    void DrawLine(v2i StartPos, v2i EndPos, color Color)
     {
         DrawLine(StartPos.x, StartPos.y, EndPos.x, EndPos.y, Color);
     }
@@ -138,6 +154,9 @@ struct game_engine
     }
 
     void FillTriangle(triangle2d Tri, color Color); // (see game_engine_draw.h)
+
+    bool KeyDown(SDL_Keycode);
+    bool KeyUp(SDL_Keycode);
 };
 
 #define GAME_ENGINE_BASE_H

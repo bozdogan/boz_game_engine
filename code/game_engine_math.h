@@ -12,7 +12,7 @@ Abs(float N)
 // NOTE(bora): 2D integer-based structs are mainly used for 
 // screen-space operations.
 
-struct v2d
+struct v2i
 {
     int x;
     int y;
@@ -30,7 +30,7 @@ struct rect2d
 
 struct triangle2d
 {
-    v2d p[3];
+    v2i p[3];
 };
 
 

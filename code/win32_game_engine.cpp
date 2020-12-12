@@ -34,7 +34,7 @@ struct Demo : game_engine
     mat4x4 Projection;
 
     v3f Camera = {0, 0, 0};
-    float Theta;
+    float Angle;
 
     void Init() override
     {
@@ -64,18 +64,6 @@ struct Demo : game_engine
             {1.0f, 0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 0.0f, 1.0f,    1.0f, 0.0f, 0.0f, 1.0f},
         };
 
-        // float zNear = 0.1f;
-        // float zFar = 1000.0f;
-        // float Fov = 90.0f;
-        // float AspectRatio = (float)ScreenHeight / (float)ScreenWidth;
-        // float FovRad = 1.0f / tanf(Fov * 0.5f / 180.0f * 3.14159f);
-
-        // Projection.m[0][0] = AspectRatio * FovRad;
-        // Projection.m[1][1] = FovRad;
-        // Projection.m[2][2] = zFar / (zFar - zNear);
-        // Projection.m[3][2] = (-zFar * zNear) / (zFar - zNear);
-        // Projection.m[2][3] = 1.0f;
-        // Projection.m[3][3] = 0.0f;
         Projection = MakeMatrix_Projection(
                 0.1f, 1000.0f,
                 90.0f,
@@ -86,52 +74,18 @@ struct Demo : game_engine
 
     void Update(double ElapsedTime) override
     {
-        // Clear Screen
         Fill({0, 0, ScreenWidth, ScreenHeight}, color{0, 0, 0, 255});
+        if(!SpaceBarPressed)
+            Angle += 1.0f * ElapsedTime;
 
-        // Set up rotation matrices
-        mat4x4 RotZ;
-        mat4x4 RotX;
-        Theta += 1.0f * ElapsedTime;
-
-        // Rotation Z
-        // RotZ.m[0][0] = cosf(Theta);
-        // RotZ.m[0][1] = sinf(Theta);
-        // RotZ.m[1][0] = -sinf(Theta);
-        // RotZ.m[1][1] = cosf(Theta);
-        // RotZ.m[2][2] = 1;
-        // RotZ.m[3][3] = 1;
-        RotZ = MakeMatrix_RotZ(Theta);
-
-        // Rotation X
-        // RotX.m[0][0] = 1;
-        // RotX.m[1][1] = cosf(Theta * 0.5f);
-        // RotX.m[1][2] = sinf(Theta * 0.5f);
-        // RotX.m[2][1] = -sinf(Theta * 0.5f);
-        // RotX.m[2][2] = cosf(Theta * 0.5f);
-        // RotX.m[3][3] = 1;
-        RotX = MakeMatrix_RotX(Theta*0.5f);
+        mat4x4 RotZ = MakeMatrix_RotZ(Angle);
+        mat4x4 RotX = MakeMatrix_RotX(Angle*0.5f);
+        mat4x4 Translation = MakeMatrix_Translation(0, 0, 3.0f);
 
         mat4x4 WorldTransform;
-        // WorldTransform.m[0][0] = 1.0f;
-        // WorldTransform.m[1][1] = 1.0f;
-        // WorldTransform.m[2][2] = 1.0f;
-        // WorldTransform.m[3][3] = 1.0f;
-
-        mat4x4 Translation;
-        // Translation.m[0][0] = 1.0f;
-        // Translation.m[1][1] = 1.0f;
-        // Translation.m[2][2] = 1.0f;
-        // Translation.m[3][3] = 1.0f;
-        // Translation.m[3][0] = 0;
-        // Translation.m[3][1] = 0;
-        // Translation.m[3][2] = 3;
-        Translation = MakeMatrix_Translation(0, 0, 3.0f);
-
         WorldTransform = Matrix_MultiplyMatrix(RotZ, RotX);
         WorldTransform = Matrix_MultiplyMatrix(WorldTransform, Translation);
         
-        // Draw Triangles
         for (auto Tri : CubeMesh.tris)
         {
             triangle ProjectedTri;
@@ -157,7 +111,7 @@ struct Demo : game_engine
                 v3f LightDirection = Vector_Normalize({0, 0, -1.0});
                 Uint8 ColorValue = Vector_DotProduct(Normal, LightDirection) * 255;
 
-                // Projection triangles from 3D --> 2D
+                // Project triangles from 3D to 2D
                 ProjectedTri.p[0] = Matrix_MultiplyVector(Projection, TranslatedTri.p[0]);
                 ProjectedTri.p[1] = Matrix_MultiplyVector(Projection, TranslatedTri.p[1]);
                 ProjectedTri.p[2] = Matrix_MultiplyVector(Projection, TranslatedTri.p[2]);
@@ -174,6 +128,7 @@ struct Demo : game_engine
                 ProjectedTri.p[1].y += 1.0f;
                 ProjectedTri.p[2].x += 1.0f;
                 ProjectedTri.p[2].y += 1.0f;
+
                 // [0, 2], [0, 2] --> [0, ScreenWidth], [0, ScreenHeight]
                 ProjectedTri.p[0].x *= 0.5f * (float)ScreenWidth;
                 ProjectedTri.p[0].y *= 0.5f * (float)ScreenHeight;
@@ -182,21 +137,9 @@ struct Demo : game_engine
                 ProjectedTri.p[2].x *= 0.5f * (float)ScreenWidth;
                 ProjectedTri.p[2].y *= 0.5f * (float)ScreenHeight;
             
-                // Rasterize triangle
-                // FillTriangle(
-                //         triangle2d{
-                //             (int)ProjectedTri.p[0].x, (int)ProjectedTri.p[0].y,
-                //             (int)ProjectedTri.p[1].x, (int)ProjectedTri.p[1].y,
-                //             (int)ProjectedTri.p[2].x, (int)ProjectedTri.p[2].y},
-                //         color{ColorValue, ColorValue, ColorValue, 255});
+
                 FillTriangle(ExtractTriXY(ProjectedTri), color{ColorValue, ColorValue, ColorValue, 255});
 
-                // DrawTriangle(
-                //         triangle2d{
-                //             (int)ProjectedTri.p[0].x, (int)ProjectedTri.p[0].y,
-                //             (int)ProjectedTri.p[1].x, (int)ProjectedTri.p[1].y,
-                //             (int)ProjectedTri.p[2].x, (int)ProjectedTri.p[2].y},
-                //         color{0, 0, 0, 255});
                 DrawTriangle(ExtractTriXY(ProjectedTri), color{0, 0, 0, 255});
             }
         }

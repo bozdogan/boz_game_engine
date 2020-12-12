@@ -4,7 +4,7 @@
 #include "game_engine_math.h"
 
 void
-_FillFlatBottomTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color)
+_FillFlatBottomTriangle(game_engine *Engine, v2i v1, v2i v2, v2i v3, color Color)
 {
     if(v2.y != v3.y)
     {
@@ -35,7 +35,7 @@ _FillFlatBottomTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color
 
 
 void
-_FillFlatTopTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color)
+_FillFlatTopTriangle(game_engine *Engine, v2i v1, v2i v2, v2i v3, color Color)
 {
     if(v1.y != v2.y)
     {
@@ -68,6 +68,13 @@ _FillFlatTopTriangle(game_engine *Engine, v2d v1, v2d v2, v2d v3, color Color)
 void
 game_engine::FillTriangle(triangle2d Tri, color Color)
 {
+    // NOTE(bora): Basically what I do here is sort vertices so they are in 
+    // ascending order by their y-components and try to determine if one of 
+    // the edges is parallel to x-axis. If so, start at the point-side and
+    // fill each line until flat-side is reached. Otherwise, split the triangle
+    // so there are two triangles with one flat side and to exactly the same thing.
+    // It seems to work for now!
+
     // TODO(bora): See if there is a better approach than my shitty algorithm.
 
     if(Tri.p[1].y < Tri.p[0].y) Swap(&Tri.p[1], &Tri.p[0]);
@@ -84,7 +91,7 @@ game_engine::FillTriangle(triangle2d Tri, color Color)
     }
     else
     {
-        v2d v4 = {
+        v2i v4 = {
             (int)(Tri.p[0].x + ((float)(Tri.p[1].y - Tri.p[0].y) / (float)(Tri.p[2].y - Tri.p[0].y)) * (Tri.p[2].x - Tri.p[0].x)), 
             Tri.p[1].y};
         _FillFlatBottomTriangle(this, Tri.p[0], Tri.p[1],       v4, Color);
