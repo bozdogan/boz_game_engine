@@ -33,7 +33,7 @@ struct Demo : game_engine
     mesh CubeMesh;
     mat4x4 Projection;
 
-    v3f Camera = {0, 0, 0};
+    v3f Camera;
     float Angle;
 
     void Init() override
@@ -69,13 +69,17 @@ struct Demo : game_engine
                 90.0f,
                 (float)ScreenHeight/(float)ScreenWidth);
 
+        Camera = {0, 0, 0};
+        Angle = 0;
+        AnyKeyDown = false;
+
         printf("%d by %d\n", ScreenWidth, ScreenHeight);
     }
 
     void Update(double ElapsedTime) override
     {
         Fill({0, 0, ScreenWidth, ScreenHeight}, color{0, 0, 0, 255});
-        if(!SpaceBarPressed)
+        if(!AnyKeyDown)
             Angle += 1.0f * ElapsedTime;
 
         mat4x4 RotZ = MakeMatrix_RotZ(Angle);

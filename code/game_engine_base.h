@@ -14,7 +14,7 @@ struct game_engine
     int ScreenWidth;
     int ScreenHeight;
     bool Running;
-    bool SpaceBarPressed;
+    bool AnyKeyDown;
 
     int Construct(int Width, int Height, char *Title)
     {
@@ -79,11 +79,11 @@ struct game_engine
             {
                 if(event.type == SDL_KEYDOWN)
                 {
-                    SpaceBarPressed = true;
+                    AnyKeyDown = true;
                 }
                 else if(event.type == SDL_KEYUP)
                 {
-                    SpaceBarPressed = false;
+                    AnyKeyDown = false;
                 }
                 else if (event.type == SDL_QUIT)
                 {
