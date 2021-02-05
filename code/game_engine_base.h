@@ -48,9 +48,9 @@ typedef enum
     KEY_GREATER = SDLK_GREATER,
     KEY_QUESTION = SDLK_QUESTION,
     KEY_AT = SDLK_AT,
-    /*
-       Skip uppercase letters
-     */
+    //
+    // Skip uppercase letters
+    //
     KEY_LEFTBRACKET = SDLK_LEFTBRACKET,
     KEY_BACKSLASH = SDLK_BACKSLASH,
     KEY_RIGHTBRACKET = SDLK_RIGHTBRACKET,
@@ -265,7 +265,7 @@ typedef enum
 
     KEY_AUDIOREWIND = SDLK_AUDIOREWIND,
     KEY_AUDIOFASTFORWARD = SDLK_AUDIOFASTFORWARD
-} keycode;
+} keycode; // NOTE(bora): See https://wiki.libsdl.org/SDL_Keycode for more info
 
 struct color
 {
